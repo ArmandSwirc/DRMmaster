@@ -1,63 +1,61 @@
-# Adobe Digital Editions DRM removal tools
+# DRMmaster
 
-Remove Adobe ADEPT DRM from ebooks you own, so you can back them up and read
-them on any device. Lossless - the decrypted PDF/EPUB is byte-identical to the
-original (decryption does not re-encode anything).
+Remove Adobe ADEPT DRM from a PDF you already have, so you can back it up and
+read it anywhere. Lossless - decryption removes the encryption without
+re-encoding, so the result is byte-identical to the original.
 
-## What this does
+Works with current Adobe Digital Editions (including 4.5.x). Windows is fully
+automatic: the launcher installs Python and everything else on first run.
 
-| Script | Purpose |
-|--------|---------|
-| `dedrm.py` | One command: point at an encrypted `.pdf`/`.epub`, get a clean copy |
-| `adobekey.py` | Extract your Adobe ADEPT key (`adeptkey.der`) from an activated ADE install |
-| `ineptpdf.py` | Low-level PDF decryptor (`key.der in.pdf out.pdf`) |
-| `ineptepub.py` | Low-level EPUB decryptor (`key.der in.epub out.epub`) |
+## Windows: one click
 
-## Important: an .acsm is not the book
+1. Make sure **Adobe Digital Editions** is installed and authorized
+   (*Help > Authorize Computer*, sign in with your Adobe ID). It must be the
+   **same Adobe ID that downloaded the book**.
+2. Double-click **`run.bat`**.
 
-An `.acsm` file is a small *download ticket* (XML). It contains no book
-content and no DRM - you cannot decrypt it directly. You must first
-**fulfill** it to download the actual encrypted `.pdf`/`.epub`:
+That's it. First run installs Python + dependencies automatically (~1 minute,
+needs internet), then it finds your book (in *My Digital Editions*, OneDrive,
+Downloads, or this folder), decrypts it, and writes a `<name>_clean.pdf` into
+this folder.
 
-1. Install [Adobe Digital Editions](https://www.adobe.com/solutions/ebook/digital-editions.html)
-   (free). Version 2.0.x is recommended.
-2. Authorize it with a free **Adobe ID** (this particular `.acsm` uses
-   `auth="user"`, so an anonymous device will not work).
-3. Open the `.acsm` in ADE → it downloads the book to
-   `~/Documents/Digital Editions/`.
-4. (No-ADE alternative: [libgourou](https://forge.soutade.fr/Artem/libgourou)
-   `adept_activate -u <adobeid>` then `acsmdownloader file.acsm`.)
+> The book must already be downloaded and openable in Adobe Digital Editions.
+> An `.acsm` file is *not* the book - it is only a download ticket.
 
-## Usage
+## macOS / Linux
 
 ```bash
-# one-time setup
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-
-# one-time: extract your key (needs an activated ADE install)
-python3 adobekey.py adeptkey.der
-
-# decrypt a book (point at the file)
-python3 dedrm.py "~/Documents/Digital Editions/MyBook.pdf"
-# -> writes MyBook_clean.pdf next to the input
+# macOS: double-click run.command   (or:)
+python3 run.py
 ```
 
-The key defaults to `adeptkey.der` in this folder; `dedrm.py` will try to
-extract it automatically if it's missing.
+## How it works
 
-## Scope / limitations
+| File | What it does |
+|------|--------------|
+| `run.bat` / `run.command` / `run.py` | One-click launcher: sets up Python, gets your key, finds + decrypts the PDF |
+| `adobekey.py` | Extracts your Adobe ADEPT key (`adeptkey.der`) from an authorized ADE install (supports ADE 4.5.x) |
+| `ineptpdf.py` | Decrypts an Adobe ADEPT-encrypted PDF |
+| `dedrm.py` | Thin wrapper: `dedrm.py book.pdf [out.pdf] [key.der]` |
 
-- Handles standard **Adobe ADEPT** DRM (Adobe Content Server 1-4) for PDF and
-  EPUB. It does **not** remove the newer Adobe "hardened" DRM from ADE 4.5+,
-  Amazon/Kindle, or Apple FairPlay DRM.
-- macOS / Windows / Linux (the key extractor supports macOS and Windows).
-- Requires `pycryptodome` (or an OpenSSL `libcrypto` on the system).
+## Manual use (optional)
+
+```bash
+python3 adobekey.py adeptkey.der          # once: extract your key
+python3 dedrm.py "C:\...\book.pdf"        # decrypt a single file
+```
+
+## Scope
+
+- Standard **Adobe ADEPT** DRM (Adobe Content Server 1-4) for PDF.
+- Key extraction supports Windows (registry) and macOS (`activation.dat`),
+  including current Adobe Digital Editions 4.5.x.
+- Does **not** remove Adobe "hardened" DRM (new Adept), Kindle, or Apple FairPlay.
 
 ## Legal
 
 For personal use on content you have legally obtained. Do not use to
 distribute copyrighted works.
 
-Code is GPL v3 - copyright © 2009-2020 i♥cabbages, Apprentice Harper et al.,
-originally from <https://github.com/apprenticeharper/DeDRM_tools>.
+Code is GPL v3 - copyright © 2009-2022 i♥cabbages, Apprentice Harper et al.,
+from <https://github.com/noDRM/DeDRM_tools>.

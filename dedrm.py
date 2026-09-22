@@ -1,28 +1,24 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""dedrm.py - point at an Adobe ADEPT book, get a clean copy.
+"""dedrm.py - point at an Adobe ADEPT PDF, get a clean copy.
 
 Usage:
-    python3 dedrm.py <book> [outfile] [key.der]
+    python3 dedrm.py <book.pdf> [out.pdf] [key.der]
 
-    <book>      an ADEPT-encrypted .pdf or .epub downloaded by ADE / libgourou
-    outfile     default: <book>_clean.<ext>
-    key.der     default: adeptkey.der in this folder
+    out.pdf  default: <book>_clean.pdf
+    key.der  default: adeptkey.der in this folder
 
 If the key file is missing, we try to extract it from an installed and
-activated copy of Adobe Digital Editions (via adobekey.py). You only need
-to activate ADE once.
+authorized copy of Adobe Digital Editions (via adobekey.py).
 
 Note: an .acsm file is *not* the book - it is a download ticket. Open it in
-Adobe Digital Editions (or libgourou) first to obtain the real .pdf/.epub,
-then run this script on that file.
+Adobe Digital Editions first to obtain the real .pdf, then run this on that.
 """
 
 import os
 import sys
 
 import ineptpdf
-import ineptepub
 import adobekey
 
 
@@ -35,7 +31,8 @@ def load_key(keypath):
     if os.path.exists(keypath):
         with open(keypath, "rb") as f:
             return f.read()
-    print("No key at {0}, trying to extract from Adobe Digital Editions...".format(keypath))
+    print("No key at {0}, trying to extract from Adobe Digital Editions..."
+          .format(keypath))
     try:
         if adobekey.getkey(keypath):
             print("Saved key to {0}".format(keypath))
@@ -43,7 +40,7 @@ def load_key(keypath):
                 return f.read()
     except Exception as e:
         print("Could not extract key: {0}".format(e))
-    print("Install + activate Adobe Digital Editions (with your Adobe ID), then re-run.")
+    print("Authorize Adobe Digital Editions (with your Adobe ID), then re-run.")
     return None
 
 
@@ -57,13 +54,8 @@ def main(argv):
         print("File not found: {0}".format(inpath))
         return 1
 
-    ext = os.path.splitext(inpath)[1].lower()
-    if ext == ".pdf":
-        decrypt = ineptpdf.decryptBook
-    elif ext == ".epub":
-        decrypt = ineptepub.decryptBook
-    else:
-        print("Unsupported type {0} - expected .pdf or .epub (not .acsm).".format(ext))
+    if os.path.splitext(inpath)[1].lower() != ".pdf":
+        print("Expected a .pdf file (not {0}).".format(inpath))
         return 1
 
     outpath = argv[1] if len(argv) > 1 else clean_name(inpath)
@@ -73,7 +65,7 @@ def main(argv):
     if userkey is None:
         return 1
 
-    rc = decrypt(userkey, inpath, outpath)
+    rc = ineptpdf.decryptBook(userkey, inpath, outpath)
     if rc == 0:
         print("Clean file written to {0}".format(outpath))
     else:

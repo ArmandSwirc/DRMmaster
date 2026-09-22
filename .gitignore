@@ -1,6 +1,8 @@
-# keep your DRM tickets and keys out of any shared repo
+# keep your DRM tickets, books and keys out of any shared repo
 *.acsm
 *.der
+*.pdf
+*.epub
 .venv/
 __pycache__/
 *.pyc
