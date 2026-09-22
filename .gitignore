@@ -1,0 +1,6 @@
+# keep your DRM tickets and keys out of any shared repo
+*.acsm
+*.der
+.venv/
+__pycache__/
+*.pyc
