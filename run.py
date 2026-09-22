@@ -114,16 +114,11 @@ def main():
 
     books = find_books()
     if not books:
-        acsms = glob.glob(os.path.join(HERE, "*.acsm"))
-        if acsms:
-            print("Found an .acsm but no downloaded book. "
-                  "Opening it in Adobe Digital Editions...")
-            open_path(acsms[0])
-            print("Once ADE finishes downloading, run me again.")
-        else:
-            print("Nothing to decrypt. Put your .pdf/.epub in this folder, "
-                  "then run me again.")
-        return 0
+        print("No downloaded .pdf found.")
+        print("Put the book (the .pdf you can open in Adobe Digital Editions)")
+        print("into this folder, then run me again.")
+        print("(Do NOT re-open the .acsm - that would use another download.)")
+        return 1
 
     for b in books:
         out = os.path.join(
